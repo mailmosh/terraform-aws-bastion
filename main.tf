@@ -136,7 +136,7 @@ resource "aws_iam_instance_profile" "bastion_instance_profile" {
 data "template_file" "bastion_user_data" {
   template = "${file("${path.module}/bastion_userdata.sh")}"
 
-  vars {
+  vars = {
     REGION = "${var.bastion_region}"
     EIP_ID = "${aws_eip.bastion_eip.id}" 
   }
@@ -167,7 +167,7 @@ resource "aws_launch_configuration" "bastion_launch_configuration" {
   instance_type        = "${var.bastion_instance_type}"
   key_name             = "${var.bastion_key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.bastion_instance_profile.name}"
-  security_groups      = ["${var.bastion_security_groups}"]
+  security_groups      = "${var.bastion_security_groups}"
   user_data            = "${data.template_file.bastion_user_data.rendered}"
   ebs_optimized        = "${var.bastion_ebs_optimized}"
   enable_monitoring    = "${var.bastion_enable_monitoring}"
@@ -195,7 +195,7 @@ resource "aws_autoscaling_group" "bastion_asg" {
   min_size             = "${var.bastion_min_size}"
   desired_capacity     = "${var.bastion_desired_capacity}"
   launch_configuration = "${aws_launch_configuration.bastion_launch_configuration.name}"
-  vpc_zone_identifier  = ["${var.bastion_asg_subnets}"]
+  vpc_zone_identifier  = "${var.bastion_asg_subnets}"
 
   tag {
     key                 = "Name"
